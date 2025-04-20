@@ -1,6 +1,7 @@
 import argparse
 import requests
 from bs4 import BeautifulSoup
+import json
 
 RECOMMENDATION_SITES = [
     "https://www.goodreads.com/",
@@ -18,42 +19,42 @@ def ask_user_preferences():
     return mood, interests, genre
 
 def fetch_book_recommendations_based_on_preferences(mood, interests, genre):
-    url = RECOMMENDATION_SITES[0]  # Replace with logic to iterate over sites if needed
+    url = "https://www.googleapis.com/books/v1/volumes"
+    query = f"{mood} {interests} {genre}".strip()
     params = {
-        'mood': mood,
-        'interests': interests,
-        'genre': genre
+        'q': query,
+        'maxResults': 5
     }
 
     response = requests.get(url, params=params)
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
+        data = response.json()
         books = []
-        for book in soup.select('.book-item')[:5]:  # Limit to 5 suggestions
-            title = book.select_one('.title').text.strip()
-            author = book.select_one('.author').text.strip()
-            books.append(f"{title} by {author}")
+        for item in data.get('items', []):
+            title = item['volumeInfo'].get('title', 'Unknown Title')
+            authors = item['volumeInfo'].get('authors', ['Unknown Author'])
+            books.append(f"{title} by {', '.join(authors)}")
         return books
     else:
         print("Failed to fetch recommendations. Please try again later.")
         return []
 
 def fetch_book_recommendations(genre=None, author=None):
-    url = RECOMMENDATION_SITES[0]  # Replace with logic to iterate over sites if needed
-    params = {}
-    if genre:
-        params['genre'] = genre
-    if author:
-        params['author'] = author
+    url = "https://www.googleapis.com/books/v1/volumes"
+    query = f"{genre} {author}".strip()
+    params = {
+        'q': query,
+        'maxResults': 5
+    }
 
     response = requests.get(url, params=params)
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
+        data = response.json()
         books = []
-        for book in soup.select('.book-item'):  # Update selector based on actual website structure
-            title = book.select_one('.title').text.strip()
-            author = book.select_one('.author').text.strip()
-            books.append(f"{title} by {author}")
+        for item in data.get('items', []):
+            title = item['volumeInfo'].get('title', 'Unknown Title')
+            authors = item['volumeInfo'].get('authors', ['Unknown Author'])
+            books.append(f"{title} by {', '.join(authors)}")
         return books
     else:
         print("Failed to fetch recommendations. Please try again later.")
