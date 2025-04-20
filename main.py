@@ -18,7 +18,7 @@ def ask_user_preferences():
     return mood, interests, genre
 
 def fetch_book_recommendations_based_on_preferences(mood, interests, genre):
-    url = "https://example-book-recommendations.com"  # Replace with a real URL
+    url = RECOMMENDATION_SITES[0]  # Replace with logic to iterate over sites if needed
     params = {
         'mood': mood,
         'interests': interests,
@@ -39,7 +39,7 @@ def fetch_book_recommendations_based_on_preferences(mood, interests, genre):
         return []
 
 def fetch_book_recommendations(genre=None, author=None):
-    url = "https://example-book-recommendations.com"  # Replace with a real URL
+    url = RECOMMENDATION_SITES[0]  # Replace with logic to iterate over sites if needed
     params = {}
     if genre:
         params['genre'] = genre
