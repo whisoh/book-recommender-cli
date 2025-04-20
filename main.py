@@ -11,11 +11,101 @@ RECOMMENDATION_SITES = [
     "https://www.amazon.com/books-used-books-textbooks/b?ie=UTF8&node=283155"
 ]
 
+GENRES = [
+    "Romance",
+    "Fantasy",
+    "Romantasy (Romantic Fantasy)",
+    "Mystery & Psychological Thrillers",
+    "Historical Fiction",
+    "Science Fiction",
+    "Climate Fiction (Cli-Fi)",
+    "Literary Fiction",
+    "Young Adult (YA) Fantasy",
+    "Horror Romance",
+    "Afrofuturism",
+    "Techno-Thrillers",
+    "Speculative Non-Fiction",
+    "Cozy Fantasy",
+    "Gothic Literature",
+    "Nostalgia-Driven Mysteries",
+    "Memoirs & Literary Non-Fiction",
+    "Dark Romance",
+    "Urban Fantasy",
+    "Interactive & Multimedia Storytelling"
+]
+
+INTERESTS = [
+    "Love stories",
+    "Magical worlds",
+    "Romantic adventures",
+    "Suspenseful mysteries",
+    "Historical events",
+    "Futuristic technology",
+    "Environmental themes",
+    "Character-driven narratives",
+    "Coming-of-age tales",
+    "Spooky romances",
+    "African culture and history",
+    "Cyber warfare",
+    "Hypothetical scenarios",
+    "Comfort and community",
+    "Eerie settings",
+    "Nostalgic whodunits",
+    "Personal experiences",
+    "Dark and complex relationships",
+    "Urban magic",
+    "Interactive storytelling"
+]
+
+MOODS = [
+    "Happy",
+    "Sad",
+    "Adventurous",
+    "Relaxed",
+    "Excited",
+    "Nostalgic",
+    "Curious",
+    "Romantic",
+    "Thrilled",
+    "Reflective",
+    "Spooky",
+    "Empowered",
+    "Hopeful",
+    "Melancholic",
+    "Inspired",
+    "Playful",
+    "Mysterious",
+    "Challenged",
+    "Comforted",
+    "Intrigued"
+]
+
+def display_genres():
+    print("Here are some popular book genres to choose from:")
+    for i, genre in enumerate(GENRES, start=1):
+        print(f"{i}. {genre}")
+
+def display_interests():
+    print("Here are some popular interests to choose from:")
+    for i, interest in enumerate(INTERESTS, start=1):
+        print(f"{i}. {interest}")
+
+def display_moods():
+    print("Here are some common moods to choose from:")
+    for i, mood in enumerate(MOODS, start=1):
+        print(f"{i}. {mood}")
+
 def ask_user_preferences():
     print("Let's find the perfect book for you!")
-    mood = input("What is your current mood? (e.g., happy, sad, adventurous): ")
-    interests = input("What are your interests? (e.g., science fiction, history, romance): ")
-    genre = input("Do you have a preferred genre? (e.g., fantasy, thriller, non-fiction): ")
+    display_genres()
+    display_moods()
+    mood_choice = input("Choose a mood by number or name from the list above: ")
+    mood = MOODS[int(mood_choice) - 1] if mood_choice.isdigit() else mood_choice
+    display_interests()
+    interests_choice = input("Choose an interest by number or name from the list above: ")
+    interests = INTERESTS[int(interests_choice) - 1] if interests_choice.isdigit() else interests_choice
+    genre_choice = input("Choose a genre by number or name from the list above: ")
+    genre = GENRES[int(genre_choice) - 1] if genre_choice.isdigit() else genre_choice
     return mood, interests, genre
 
 def fetch_book_recommendations_based_on_preferences(mood, interests, genre):
