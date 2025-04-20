@@ -150,6 +150,37 @@ def fetch_book_recommendations(genre=None, author=None):
         print("Failed to fetch recommendations. Please try again later.")
         return []
 
+def fetch_openlibrary_recommendations(query):
+    url = f"https://openlibrary.org/search.json?q={query}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        books = []
+        for doc in data.get('docs', [])[:5]:
+            title = doc.get('title', 'Unknown Title')
+            author = doc.get('author_name', ['Unknown Author'])[0]
+            books.append(f"{title} by {author}")
+        return books
+    else:
+        print("Failed to fetch recommendations from OpenLibrary. Please try again later.")
+        return []
+
+def fetch_nytimes_recommendations(list_name):
+    api_key = "your-nytimes-api-key"  # Replace with your NYT API key
+    url = f"https://api.nytimes.com/svc/books/v3/lists/current/{list_name}.json?api-key={api_key}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        books = []
+        for book in data.get('results', {}).get('books', []):
+            title = book.get('title', 'Unknown Title')
+            author = book.get('author', 'Unknown Author')
+            books.append(f"{title} by {author}")
+        return books
+    else:
+        print("Failed to fetch recommendations from NYTimes. Please try again later.")
+        return []
+
 def main():
     parser = argparse.ArgumentParser(description="Book Recommender CLI Tool")
     parser.add_argument("--genre", type=str, help="Preferred book genre")
