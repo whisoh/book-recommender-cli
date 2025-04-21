@@ -2,14 +2,15 @@ import argparse
 import requests
 from bs4 import BeautifulSoup
 import json
+import time
 
-RECOMMENDATION_SITES = [
-    "https://www.goodreads.com/",
-    "https://www.nytimes.com/books/best-sellers/",
-    "https://bookriot.com/",
-    "https://www.penguinrandomhouse.com/",
-    "https://www.amazon.com/books-used-books-textbooks/b?ie=UTF8&node=283155"
-]
+# RECOMMENDATION_SITES = [
+#     "https://www.goodreads.com/",
+#     "https://www.nytimes.com/books/best-sellers/",
+#     "https://bookriot.com/",
+#     "https://www.penguinrandomhouse.com/",
+#     "https://www.amazon.com/books-used-books-textbooks/b?ie=UTF8&node=283155"
+# ]
 
 GENRES = [
     "Romance",
@@ -109,24 +110,29 @@ def ask_user_preferences():
     return mood, interests, genre
 
 def fetch_book_recommendations_based_on_preferences(mood, interests, genre):
-    url = "https://www.googleapis.com/books/v1/volumes"
     query = f"{mood} {interests} {genre}".strip()
-    params = {
-        'q': query,
-        'maxResults': 5
-    }
 
-    response = requests.get(url, params=params)
+    if not query:
+        print("DEBUG: Query is empty. Using a default query.")
+        query = "popular books"
+
+    print(f"DEBUG: Querying OpenLibrary API with query: {query}")
+
+    url = f"https://openlibrary.org/search.json?q={query}"
+    response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
+        print(f"DEBUG: API Response: {data}")
+
         books = []
-        for item in data.get('items', []):
-            title = item['volumeInfo'].get('title', 'Unknown Title')
-            authors = item['volumeInfo'].get('authors', ['Unknown Author'])
-            books.append(f"{title} by {', '.join(authors)}")
+        for doc in data.get('docs', [])[:5]:
+            title = doc.get('title', 'Unknown Title')
+            author = doc.get('author_name', ['Unknown Author'])[0]
+            books.append(f"{title} by {author}")
         return books
     else:
-        print("Failed to fetch recommendations. Please try again later.")
+        print(f"DEBUG: API Request failed with status code {response.status_code}")
+        print(f"DEBUG: Response content: {response.text}")
         return []
 
 def fetch_book_recommendations(genre=None, author=None):
@@ -150,36 +156,38 @@ def fetch_book_recommendations(genre=None, author=None):
         print("Failed to fetch recommendations. Please try again later.")
         return []
 
-def fetch_openlibrary_recommendations(query):
-    url = f"https://openlibrary.org/search.json?q={query}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        books = []
-        for doc in data.get('docs', [])[:5]:
-            title = doc.get('title', 'Unknown Title')
-            author = doc.get('author_name', ['Unknown Author'])[0]
-            books.append(f"{title} by {author}")
-        return books
-    else:
-        print("Failed to fetch recommendations from OpenLibrary. Please try again later.")
-        return []
+# def fetch_openlibrary_recommendations(query):
+#     url = f"https://openlibrary.org/search.json?q={query}"
+#     response = requests.get(url)
+#     if response.status_code == 200:
+#         data = response.json()
+#         books = []
+#         for doc in data.get('docs', [])[:5]:
+#             title = doc.get('title', 'Unknown Title')
+#             author = doc.get('author_name', ['Unknown Author'])[0]
+#             books.append(f"{title} by {author}")
+#         return books
+#     else:
+#         print("Failed to fetch recommendations from OpenLibrary. Please try again later.")
+#         return []
 
-def fetch_nytimes_recommendations(list_name):
-    api_key = "your-nytimes-api-key"  # Replace with your NYT API key
-    url = f"https://api.nytimes.com/svc/books/v3/lists/current/{list_name}.json?api-key={api_key}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        books = []
-        for book in data.get('results', {}).get('books', []):
-            title = book.get('title', 'Unknown Title')
-            author = book.get('author', 'Unknown Author')
-            books.append(f"{title} by {author}")
-        return books
-    else:
-        print("Failed to fetch recommendations from NYTimes. Please try again later.")
-        return []
+# def fetch_nytimes_recommendations(list_name):
+#     api_key = "your-nytimes-api-key"  # Replace with your NYT API key
+#     url = f"https://api.nytimes.com/svc/books/v3/lists/current/{list_name}.json?api-key={api_key}"
+#     response = requests.get(url)
+#     if response.status_code == 200:
+#         data = response.json()
+#         books = []
+#         for book in data.get('results', {}).get('books', []):
+#             title = book.get('title', 'Unknown Title')
+#             author = book.get('author', 'Unknown Author')
+#             books.append(f"{title} by {author}")
+#         return books
+#     else:
+#         print("Failed to fetch recommendations from NYTimes. Please try again later.")
+#         return []
+
+# Updated main function to use only Google Books API
 
 def main():
     parser = argparse.ArgumentParser(description="Book Recommender CLI Tool")
@@ -190,9 +198,6 @@ def main():
     print("Welcome to the Book Recommender CLI Tool!")
     mood, interests, genre = ask_user_preferences()
     print("Fetching recommendations based on your preferences...")
-    print("Fetching recommendations from the following sites:")
-    for site in RECOMMENDATION_SITES:
-        print(f"- {site}")
     recommendations = fetch_book_recommendations_based_on_preferences(mood, interests, genre)
     if recommendations:
         print("Here are some book recommendations for you:")
